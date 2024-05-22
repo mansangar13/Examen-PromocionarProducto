@@ -86,6 +86,10 @@ module.exports = {
           },
           key: 'id'
         }
+      },
+      discount: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       }
     })
   },
