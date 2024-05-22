@@ -1,5 +1,5 @@
 import { Product, Order, Restaurant, RestaurantCategory, ProductCategory, sequelizeSession } from '../models/models.js'
-import Sequelize, { where } from 'sequelize'
+import Sequelize from 'sequelize'
 
 const indexRestaurant = async function (req, res) {
   try {
@@ -108,27 +108,27 @@ const popular = async function (req, res) {
 }
 
 const promoteProduct = async function (req, res) {
-  const t = sequelizeSession.transaction()
+  const t = await sequelizeSession.transaction()
   try {
-    const product = await Restaurant.findByPk(req.params.productId)
-    const restaurant = await Restaurant.findByPk(product.restaurantId)
+    const product = await Product.findByPk(req.params.productId, { transaction: t })
+    const restaurant = await Restaurant.findByPk(product.restaurantId, { transaction: t })
     if (product.promoted === false && restaurant.discount > 0) {
       const priceDiscount = product.price - (product.price * (restaurant.discount / 100))
       await Product.update(
-        { promote: true },
-        { priceWithDiscount: priceDiscount },
-        { where: { id: product.productId } }
+        { promoted: true, priceWithDiscount: priceDiscount },
+        { where: { id: product.id }, transaction: t }
       )
     } else if (product.promoted === true || restaurant.discount === 0) {
       await Product.update(
-        { promote: false },
-        { where: { id: product.productId } }
+        { promoted: false },
+        { where: { id: product.id }, transaction: t }
       )
     }
     await t.commit()
     const updatedProduct = await Restaurant.findByPk(req.params.productId)
     res.json(updatedProduct)
   } catch (error) {
+    console.error(error)
     res.status(500).send(error)
   }
 }
