@@ -57,6 +57,14 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: new Date()
+      },
+      promoted: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      priceWithDiscount: {
+        type: Sequelize.DOUBLE,
+        defaultValue: 0.0
       }
     })
   },
